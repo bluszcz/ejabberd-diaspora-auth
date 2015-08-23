@@ -1,6 +1,6 @@
-******************
-diaspora* ejabberd
-******************
+***********************
+ejabberd diaspora* auth
+***********************
 
 requirements
 ------------
@@ -18,5 +18,6 @@ ejabberd configuration
 ----------------------
 
     auth_method: external
+    
     extauth_program: "/home/bluszcz/dev/repo/diaspora-ejabberd/diaspora_auth.py"
 
