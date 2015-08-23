@@ -12,7 +12,7 @@ requirements
 installation
 ------------
 
-    pip install 
+    pip install ejabberd_diaspora_auth
 
 ejabberd configuration
 ----------------------
