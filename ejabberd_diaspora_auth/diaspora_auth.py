@@ -1,11 +1,42 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
+import os
+import re
 from struct import *
 import psycopg2
 import bcrypt
-# For now only with postgresql
-conn = psycopg2.connect("dbname=diaspora_development user=diaspora host=127.0.0.1 password=diaspora")
+import yaml
+
+re_pepper = re.compile(r'.*config.pepper = "([a-z0-9]*)')
+
+def parse_yaml_file(filename):
+    result = yaml.load(open(filename))
+    return result
+
+def get_pepper(filename):
+    for line in open(filename).readlines():
+        if line.find('config.pepper')>-1:
+            if re_pepper.match(line):
+                pepper = (re_pepper.findall(line))[0]
+                return pepper
+            return line
+
+if os.environ.get('DIASPORA_DIR'):
+    DIASPORA_DIR = os.environ.get('DIASPORA_DIR')
+else:
+    DIASPORA_DIR = "/home/diaspora/diaspora"
+filename = os.path.join(DIASPORA_DIR, "config/database.yml")
+db_config = parse_yaml_file(filename)
+filename = os.path.join(DIASPORA_DIR, "config/initializers/devise.rb")
+pepper = get_pepper(filename)
+db_password = db_config['postgresql']['password']
+db_host = db_config['postgresql']['host']
+db_user = db_config['postgresql']['username']
+db_dbname = 'diaspora_development'
+connection_string = "dbname=%s user=%s host=%s password=%s" % (db_dbname, db_user, db_host, db_password)
+
+conn = psycopg2.connect(connection_string)
 cur = conn.cursor()
 
 def get_user(cur, username):
@@ -20,12 +51,10 @@ def valid_user(cur, username):
         return True
     else:
         return False
-     
+    
 def auth_user(cur, useuth_rname, password):
     user = get_user(cur, "test")
     encrypted_password = user[1]
-    # replace this with the value from config/initializers/devise.rb
-    pepper = '065eb8798b181ff0ea2c5c16aee0ff8b70e04e2ee6bd6e08b49da46924223e39127d5335e466207d42bf2a045c12be5f90e92012a4f05f7fc6d9f3c875f4c95b'
     password_txt = '%s%s' % (password, pepper)
     if bcrypt.hashpw(password_txt.encode('utf-8'), encrypted_password.encode('utf-8')) == encrypted_password.encode('utf-8'):
         return True
