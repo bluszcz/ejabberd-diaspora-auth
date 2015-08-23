@@ -10,7 +10,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='ejabberd-diaspora-auth',
-    version='0.1',
+    version='0.2',
     packages=['ejabberd_diaspora_auth'],
     include_package_data=True,
     license='Apache License version 2.0',
