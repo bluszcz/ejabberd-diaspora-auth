@@ -46,7 +46,7 @@ pepper = get_pepper(filename)
 try:
     db_password = db_config['password']
 except:
-    db_password = db_config['postgressl']['password']
+    db_password = db_config['postgresql']['password']
 try:
     db_host = db_config['host']
 except:
@@ -69,12 +69,12 @@ conn = psycopg2.connect(connection_string)
 cur = conn.cursor()
 
 def get_user(cur, username):
-    cur.execute("SELECT username, encrypted_password FROM users WHERE username = '%s';" %(username))
+    cur.execute("SELECT username, encrypted_password FROM users WHERE username =%s;", (username,))
     user = cur.fetchone()    
     return user
 
 def valid_user(cur, username):
-    cur.execute("SELECT count(username) FROM users WHERE username = '%s';" %(username));
+    cur.execute("SELECT count(username) FROM users WHERE username =%s;", (username,))
     result = cur.fetchone()
     if result[0]==1:
         return True
